@@ -16,6 +16,7 @@ app.set('port', 8081);
 //Rutas/controladores por lógica
 require("./routes/rusuarios.js")(app, swig);
 require("./routes/rcanciones.js")(app, swig);
+require("./routes/rautores.js")(app, swig);
 
 //Lanzar el sevidor
 app.listen(app.get('port'), function(){
