@@ -2,6 +2,14 @@
 let express = require('express');
 let app = express();
 
+let expressSession = require('express-session');
+app.use(expressSession({
+    secret: 'abcdefg',
+    resave: true,
+    saveUninitialized: true
+}));
+let crypto = require('crypto');
+
 let fileUpload = require('express-fileupload');
 app.use(fileUpload());
 let mongo = require('mongodb');
@@ -19,6 +27,8 @@ app.use(express.static('public'));
 //Variables
 app.set('port', 8081);
 app.set('db', 'mongodb://admin:Lwvvid17@tiendamusica-shard-00-00.hzqer.mongodb.net:27017,tiendamusica-shard-00-01.hzqer.mongodb.net:27017,tiendamusica-shard-00-02.hzqer.mongodb.net:27017/myFirstDatabase?ssl=true&replicaSet=atlas-sq6wyx-shard-0&authSource=admin&retryWrites=true&w=majority');
+app.set('clave','abcdefg');
+app.set('crypto',crypto);
 
 //Rutas/controladores por lógica
 require("./routes/rusuarios.js")(app, swig, gestorBD);
