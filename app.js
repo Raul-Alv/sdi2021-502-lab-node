@@ -55,6 +55,21 @@ routerAudios.use(function(req, res, next) {
 //Aplicar routerAudios
 app.use("/audios/",routerAudios);
 
+let routerComentarios = express.Router();
+routerComentarios.use(function(req, res, next) {
+    console.log("routerComentarios");
+
+    if (req.session.usuario) {
+        next();
+    } else {
+        res.send("Inicia sesion para continuar.");
+    }
+
+});
+//Aplicar routerAudios
+app.use("/comentarios/:cancion_id",routerComentarios);
+
+
 app.use(express.static('public'));
 
 //Variables
@@ -66,6 +81,7 @@ app.set('crypto',crypto);
 //Rutas/controladores por lógica
 require("./routes/rusuarios.js")(app, swig, gestorBD);
 require("./routes/rcanciones.js")(app, swig, gestorBD);
+require("./routes/rcomentarios.js")(app, swig, gestorBD);
 require("./routes/rautores.js")(app, swig);
 
 //Lanzar el sevidor
