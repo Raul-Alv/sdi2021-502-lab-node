@@ -60,7 +60,7 @@ module.exports = function (app, swig, gestorBD) {
             if (id == null) {
                 //res.send("Error al insertar canción");
                 let respuesta = swig.renderFile('views/error.html', {
-                   message:  "Error al insertar canción"
+                    message: "Error al insertar canción"
                 });
                 res.send(respuesta);
             } else {
@@ -69,7 +69,7 @@ module.exports = function (app, swig, gestorBD) {
                     imagen.mv('public/portadas/' + id + '.png', function (err) {
                         if (err) {
                             let respuesta = swig.renderFile('views/error.html', {
-                                message:  "Error al subir la portada"
+                                message: "Error al subir la portada"
                             });
                             res.send(respuesta);
                         } else {
@@ -78,7 +78,7 @@ module.exports = function (app, swig, gestorBD) {
                                 audio.mv('public/audios/' + id + '.mp3', function (err) {
                                     if (err) {
                                         let respuesta = swig.renderFile('views/error.html', {
-                                            message:  "Error al subir el audio"
+                                            message: "Error al subir el audio"
                                         });
                                         res.send(respuesta);
                                     } else {
@@ -99,105 +99,54 @@ module.exports = function (app, swig, gestorBD) {
         let criterio = {"_id": gestorBD.mongo.ObjectID(req.params.id)};
         let criterio_comentario = {"cancion_id": gestorBD.mongo.ObjectID(req.params.id)};
         let criterio_compra = {"usuario": req.session.usuario};
-        gestorBD.obtenerCompras(criterio_compra, function(compras){
-           for(i=0; i<compras.length; i++){
-               if(compras[i].cancionId == criterio_comentario){
-
-               }
-           }
-        });
         gestorBD.obtenerCanciones(criterio, function (canciones) {
             if (canciones == null) {
                 let respuesta = swig.renderFile('views/error.html', {
-                    message:  "Error al recuperar la canción."
+                    message: "Error al recuperar la canción."
                 });
                 res.send(respuesta);
             } else {
-                /*
                 gestorBD.obtenerCompras(criterio_compra, function (compras) {
-                    for (i = 0; i < compras.length; i++) {
-                        if (compras[i].cancionId == criterio) {
-                            gestorBD.obtenerComentarios(criterio_comentario, function (comentarios) {
-                                if (comentarios == null) {
-                                    let respuesta = swig.renderFile('views/bcancion.html',
-                                        {
-                                            cancion: canciones[0],
-                                            bought: false
-                                        });
-                                    res.send(respuesta);
-                                } else {
-                                    let respuesta = swig.renderFile('views/bcancion.html',
-                                        {
-                                            cancion: canciones[0],
-                                            comentarios: comentarios,
-                                            bought: false
-                                        });
-                                    res.send(respuesta);
-                                }
-                            });
-                        }
-                        else{
-                            gestorBD.obtenerComentarios(criterio_comentario, function (comentarios) {
-                                if (comentarios == null) {
-                                    let respuesta = swig.renderFile('views/bcancion.html',
-                                        {
-                                            cancion: canciones[0],
-                                            bought: true
-                                        });
-                                    res.send(respuesta);
-                                } else {
-                                    let respuesta = swig.renderFile('views/bcancion.html',
-                                        {
-                                            cancion: canciones[0],
-                                            comentarios: comentarios,
-                                            bought: true
-                                        });
-                                    res.send(respuesta);
-                                }
-                            });
-                        }
+                    if (canciones[0].autor == req.session.usuario || isSongBought(compras, criterio_comentario)) {
+                        gestorBD.obtenerComentarios(criterio_comentario, function (comentarios) {
+                            if (comentarios == null) {
+                                let respuesta = swig.renderFile('views/bcancion.html',
+                                    {
+                                        cancion: canciones[0],
+                                        bought: false
+                                    });
+                                res.send(respuesta);
+                            } else {
+                                let respuesta = swig.renderFile('views/bcancion.html',
+                                    {
+                                        cancion: canciones[0],
+                                        comentarios: comentarios,
+                                        bought: false
+                                    });
+                                res.send(respuesta);
+                            }
+                        });
+                    } else {
+                        gestorBD.obtenerComentarios(criterio_comentario, function (comentarios) {
+                            if (comentarios == null) {
+                                let respuesta = swig.renderFile('views/bcancion.html',
+                                    {
+                                        cancion: canciones[0],
+                                        bought: true
+                                    });
+                                res.send(respuesta);
+                            } else {
+                                let respuesta = swig.renderFile('views/bcancion.html',
+                                    {
+                                        cancion: canciones[0],
+                                        comentarios: comentarios,
+                                        bought: true
+                                    });
+                                res.send(respuesta);
+                            }
+                        });
                     }
                 });
-                */
-                if (canciones[0].autor == req.session.usuario) {
-                    gestorBD.obtenerComentarios(criterio_comentario, function (comentarios) {
-                        if (comentarios == null) {
-                            let respuesta = swig.renderFile('views/bcancion.html',
-                                {
-                                    cancion: canciones[0],
-                                    bought: false
-                                });
-                            res.send(respuesta);
-                        } else {
-                            let respuesta = swig.renderFile('views/bcancion.html',
-                                {
-                                    cancion: canciones[0],
-                                    comentarios: comentarios,
-                                    bought: false
-                                });
-                            res.send(respuesta);
-                        }
-                    });
-                }  else {
-                    gestorBD.obtenerComentarios(criterio_comentario, function (comentarios) {
-                        if (comentarios == null) {
-                            let respuesta = swig.renderFile('views/bcancion.html',
-                                {
-                                    cancion: canciones[0],
-                                    bought: true
-                                });
-                            res.send(respuesta);
-                        } else {
-                            let respuesta = swig.renderFile('views/bcancion.html',
-                                {
-                                    cancion: canciones[0],
-                                    comentarios: comentarios,
-                                    bought: true
-                                });
-                            res.send(respuesta);
-                        }
-                    });
-                }
             }
         });
     });
@@ -217,7 +166,7 @@ module.exports = function (app, swig, gestorBD) {
         gestorBD.obtenerCancionesPg(criterio, pg, function (canciones, total) {
             if (canciones == null) {
                 let respuesta = swig.renderFile('views/error.html', {
-                    message:  "Error al listar "
+                    message: "Error al listar "
                 });
                 res.send(respuesta);
             } else {
@@ -251,7 +200,7 @@ module.exports = function (app, swig, gestorBD) {
         gestorBD.obtenerCanciones(criterio, function (canciones) {
             if (canciones == null) {
                 let respuesta = swig.renderFile('views/error.html', {
-                    message:  "Error al listar "
+                    message: "Error al listar "
                 });
                 res.send(respuesta);
             } else {
@@ -269,7 +218,7 @@ module.exports = function (app, swig, gestorBD) {
         gestorBD.obtenerCanciones(criterio, function (canciones) {
             if (canciones == null) {
                 let respuesta = swig.renderFile('views/error.html', {
-                    message:  "Error al recuperar la cancion "
+                    message: "Error al recuperar la cancion "
                 });
                 res.send(respuesta);
             } else {
@@ -292,7 +241,7 @@ module.exports = function (app, swig, gestorBD) {
         gestorBD.modificarCancion(criterio, cancion, function (result) {
             if (result == null) {
                 let respuesta = swig.renderFile('views/error.html', {
-                    message:  "Error al modificar "
+                    message: "Error al modificar "
                 });
                 res.send(respuesta);
             } else {
@@ -337,13 +286,12 @@ module.exports = function (app, swig, gestorBD) {
         }
     };
 
-    function isSongBought(compras, idCancion, callback) {
+    function isSongBought(compras, idCancion) {
         for (i = 0; i < compras.length; i++) {
             if (compras[i].cancionId == idCancion) {
-                callback(true);
-            } else {
-                callback(null);
+                return true;
             }
+            return false;
         }
     };
 
@@ -352,7 +300,7 @@ module.exports = function (app, swig, gestorBD) {
         gestorBD.eliminarCancion(criterio, function (canciones) {
             if (canciones == null) {
                 let respuesta = swig.renderFile('views/error.html', {
-                    message:  "Error al eliminar cancion "
+                    message: "Error al eliminar cancion "
                 });
                 res.send(respuesta);
             } else {
@@ -371,7 +319,7 @@ module.exports = function (app, swig, gestorBD) {
         gestorBD.insertarCompra(compra, function (idCompra) {
             if (idCompra == null) {
                 let respuesta = swig.renderFile('views/error.html', {
-                    message:  "Error al comprar la cancion "
+                    message: "Error al comprar la cancion "
                 });
                 res.send(respuesta);
             } else {
@@ -386,7 +334,7 @@ module.exports = function (app, swig, gestorBD) {
         gestorBD.obtenerCompras(criterio, function (compras) {
             if (compras == null) {
                 let respuesta = swig.renderFile('views/error.html', {
-                    message:  "Error al listar "
+                    message: "Error al listar "
                 });
                 res.send(respuesta);
             } else {
