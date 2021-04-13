@@ -93,7 +93,34 @@ routerAudios.use(function (req, res, next) {
 });
 //Aplicar routerAudios
 app.use("/audios/", routerAudios);
-
+/*
+let routerCompra = express.Router();
+routerCompra.use(function (req, res, next){
+   console.log("routerCompra");
+   let path = require('path');
+   let id = path.basename(req.originalUrl);
+   gestorBD.obtenerCanciones({"_id": mongo.ObjectID(id)},
+       function (canciones) {
+       if(req.session.usuario && canciones[0].autor == req.session.usuario){
+           res.redirect("/tienda");
+       }
+       else{
+           let criterio = {
+             cancionId: mongo.ObjectID(id)
+           };
+           gestorBD. obtenerCompras(criterio, function(compras){
+              if(compras.length == 0){
+                  next();
+              }
+              else{
+                  res.redirect("/tienda");
+              }
+           });
+       }
+   });
+});
+app.use("/cancion/", routerCompra);
+*/
 let routerComentarios = express.Router();
 routerComentarios.use(function (req, res, next) {
     console.log("routerComentarios");
