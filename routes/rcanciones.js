@@ -96,58 +96,99 @@ module.exports = function (app, swig, gestorBD) {
     });
 
     app.get('/cancion/:id', function (req, res) {
-        let criterio = {"_id": gestorBD.mongo.ObjectID(req.params.id)};
-        let criterio_comentario = {"cancion_id": gestorBD.mongo.ObjectID(req.params.id)};
-        let criterio_compra = {"usuario": req.session.usuario};
+        let criterio = { "_id" :  gestorBD.mongo.ObjectID(req.params.id)};
+        let criterio2 = { "cancion_id" :  gestorBD.mongo.ObjectID(req.params.id)};
+        let usuario = req.session.usuario;
+        let variable = 1
         gestorBD.obtenerCanciones(criterio, function (canciones) {
-            if (canciones == null) {
-                let respuesta = swig.renderFile('views/error.html', {
-                    message: "Error al recuperar la canción."
-                });
-                res.send(respuesta);
-            } else {
-                gestorBD.obtenerCompras(criterio_compra, function (compras) {
-                    if (canciones[0].autor == req.session.usuario || isSongBought(compras, criterio_comentario)) {
-                        gestorBD.obtenerComentarios(criterio_comentario, function (comentarios) {
-                            if (comentarios == null) {
-                                let respuesta = swig.renderFile('views/bcancion.html',
-                                    {
-                                        cancion: canciones[0],
-                                        bought: false
-                                    });
-                                res.send(respuesta);
-                            } else {
-                                let respuesta = swig.renderFile('views/bcancion.html',
-                                    {
-                                        cancion: canciones[0],
-                                        comentarios: comentarios,
-                                        bought: false
-                                    });
-                                res.send(respuesta);
-                            }
-                        });
-                    } else {
-                        gestorBD.obtenerComentarios(criterio_comentario, function (comentarios) {
-                            if (comentarios == null) {
-                                let respuesta = swig.renderFile('views/bcancion.html',
-                                    {
-                                        cancion: canciones[0],
-                                        bought: true
-                                    });
-                                res.send(respuesta);
-                            } else {
-                                let respuesta = swig.renderFile('views/bcancion.html',
-                                    {
-                                        cancion: canciones[0],
-                                        comentarios: comentarios,
-                                        bought: true
-                                    });
-                                res.send(respuesta);
-                            }
-                        });
+            let usuarioCompra = {"usuario": req.session.usuario};
+
+            //let valor = seCompra(usuarioCompra, req.params.id);
+            gestorBD.obtenerCompras(usuarioCompra, function (compras) {
+                if (compras != null) {
+                    for (i = 0; i < compras.length; i++) {
+                        if (compras[i].cancionId.toString() == req.params.id) {//en el caso q la compra sea del usuario
+                            console.log("0");
+                            variable = 0;
+
+                        }
+
                     }
-                });
-            }
+                }
+                if (variable == 0) {
+
+                    //console.log("pongo el valor a true");
+                    gestorBD.obtenerComentarios(criterio2, function (comentarios) {
+
+                        if (canciones == null) {
+                            let respuesta = swig.renderFile('views/error.html',
+                                {
+
+                                    mensaje: "Error al recuperar la canción "
+                                });
+                            res.send(respuesta);
+                        } else if (comentarios == null) {
+                            let respuesta = swig.renderFile('views/bcancion.html',
+                                {
+                                    cancion: canciones[0],
+                                    bought: false
+                                });
+                            res.send(respuesta);
+                        } else {
+                            let respuesta = swig.renderFile('views/bcancion.html',
+                                {
+                                    cancion: canciones[0],
+                                    comentarios: comentarios,
+                                    bought: false
+                                });
+                            res.send(respuesta);
+                        }
+                    });
+                } else {
+                    //console.log("pongo el valor a false");
+                    gestorBD.obtenerComentarios(criterio2, function (comentarios) {
+                        if (canciones == null) {
+                            let respuesta = swig.renderFile('views/error.html',
+                                {
+
+                                    mensaje: "Error al recuperar la cancion "
+                                });
+                            res.send(respuesta);
+                        } else if (comentarios == null) {
+                            let respuesta = swig.renderFile('views/bcancion.html',
+                                {
+                                    cancion: canciones[0],
+                                    bought: true
+                                });
+                            res.send(respuesta);
+                        } else {
+                            let configuracion = {
+                                url: "https://www.freeforexapi.com/api/live?pairs=EURUSD",
+                                method: "get",
+                                headers: {
+                                    "token": "ejemplo",
+                                }
+                            }
+                            let rest = app.get("rest");
+                            rest(configuracion, function (error, response, body) {
+                                console.log("cod: " + response.statusCode + " Cuerpo :" + body);
+                                let objetoRespuesta = JSON.parse(body);
+                                let cambioUSD = objetoRespuesta.rates.EURUSD.rate;
+                                // nuevo campo "usd"
+                                canciones[0].usd = cambioUSD * canciones[0].precio;
+                                let respuesta = swig.renderFile('views/bcancion.html',
+                                    {
+                                        cancion: canciones[0],
+                                        comentarios: comentarios,
+                                        bought: true
+                                    });
+                                res.send(respuesta);
+                            })
+                        }
+                    });
+                }
+            });
+
         });
     });
 
